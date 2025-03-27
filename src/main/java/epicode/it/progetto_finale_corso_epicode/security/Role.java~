@@ -1,0 +1,4 @@
+package epicode.it.progetto_finale_corso_epicode.security;
+
+public enum Role {
+}
