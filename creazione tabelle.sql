@@ -1,0 +1,16 @@
+CREATE TABLE viaggi(
+	Id SERIAL PRIMARY KEY,
+	stato VARCHAR(50) NOT NULL,
+	regione VARCHAR(50),
+	provincia VARCHAR(50),
+	citta VARCHAR(50) NOT NULL,
+	titolo VARCHAR(50) NOT NULL,
+	descrizione VARCHAR(50) NOT NULL,
+	prezzo INTEGER
+)
+
+ALTER TABLE viaggi
+ADD COLUMN email VARCHAR(100); 
+
+ALTER TABLE viaggi
+DROP COLUMN email;

@@ -23,20 +23,20 @@ public class ViaggioController {
         return viaggioService.save(body);
     }
 
-    @GetMapping("findById/{id}")
+    @GetMapping("/findById/{id}")
     @ResponseStatus(HttpStatus.OK)
     public GeneralResponseWithMessage<Viaggio> findById(@PathVariable Long id) {
 
         return viaggioService.findById(id);
     }
 
-    @PutMapping("modifyById/{id}")
+    @PutMapping("/modifyById/{id}")
     @ResponseStatus(HttpStatus.OK)
     public GeneralResponseWithMessage<Viaggio> modifyById(@PathVariable Long id, @RequestBody ViaggioRequest request) {
         return viaggioService.modifyById(id, request);
     }
 
-    @DeleteMapping("deleteById/{id}")
+    @DeleteMapping("/deleteById/{id}")
     @ResponseStatus(HttpStatus.OK)
     public GeneralResponseWithMessage<String> deleteById(@PathVariable Long id) {
 
