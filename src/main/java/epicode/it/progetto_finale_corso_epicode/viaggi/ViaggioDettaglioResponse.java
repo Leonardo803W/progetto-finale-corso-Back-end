@@ -10,12 +10,16 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ViaggioDettaglioResponse {
 
-    private String email;
     private String stato;
     private String regione;
     private String provincia;
     private String citta;
     private String titolo;
     private String descrizione;
+    private String image;
+    private LocalDate checkIn;
+    private LocalDate checkOut;
+    private Integer  adulti;
+    private Integer  bambini;
     private double prezzo;
 }

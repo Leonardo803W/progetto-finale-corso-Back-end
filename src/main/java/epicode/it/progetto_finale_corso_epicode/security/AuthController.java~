@@ -40,8 +40,6 @@ public class AuthController {
             emailService.sendEmail(userRegisterRequest.getEmail(), subject, body);
             emailService.sendEmail(userRegisterRequest.getEmail(), subject);
 
-            System.out.println("Email inviati con successo");
-
         } catch (MessagingException e) {
 
             return ResponseEntity.internalServerError().body("Errore nell'invio dell'email di conferma.");

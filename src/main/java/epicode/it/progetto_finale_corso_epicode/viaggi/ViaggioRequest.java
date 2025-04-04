@@ -1,5 +1,6 @@
 package epicode.it.progetto_finale_corso_epicode.viaggi;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,14 @@ public class ViaggioRequest {
     private String regione;
     private String provincia;
     private String citta;
+    private String image;
+    private Integer  adulti;
+    private Integer  bambini;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    private LocalDate checkIn;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    private LocalDate checkOut;
 
     @NotBlank
     private String titolo;
@@ -25,6 +34,5 @@ public class ViaggioRequest {
     private String descrizione;
 
     @NotNull
-    @DecimalMin(value = "0.0", inclusive = false)
     private Double prezzo;
 }
