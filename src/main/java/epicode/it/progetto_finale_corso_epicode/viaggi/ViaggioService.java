@@ -24,7 +24,6 @@ import java.util.List;
 @Validated
 public class ViaggioService {
 
-    /*
     @Value("${messages.new.viaggio.to}")
     private String newViaggioTo;
 
@@ -34,32 +33,17 @@ public class ViaggioService {
     @Value("${messages.new.viaggio.body}")
     private String newViaggioBody;
 
-     */
-
     private final EmailService emailService;
     private final ViaggioRepository viaggioRepository;
 
     // Metodo per inserire un viaggio
-    public GeneralResponseWithMessage<Viaggio> save(ViaggioRequest viaggioRequest) {
+    public GeneralResponseWithMessage<Viaggio> save(ViaggioRequest viaggioRequest) throws MessagingException {
 
         Viaggio viaggio = new Viaggio();
-        BeanUtils.copyProperties(viaggioRequest, viaggio);
         viaggioRepository.save(viaggio);
+        BeanUtils.copyProperties(viaggioRequest, viaggio);
 
-        /*
-        try {
-
-            emailService.sendEmail(
-                    newViaggioTo,
-                    newViaggioSubject,
-                    newViaggioBody);
-
-        } catch (MessagingException e) {
-
-            System.out.println("Errore durante l'invio dell'email: " + e.getMessage());
-        }
-
-         */
+        emailService.sendEmail(newViaggioTo, newViaggioSubject, newViaggioBody);
 
         return new GeneralResponseWithMessage<>(viaggio, "Viaggio salvato con successo.");
     }

@@ -27,13 +27,11 @@ public class Viaggio {
     private String descrizione;
     private String image;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     @Column(name = "check_in")
-    private LocalDate checkIn;
+    private String checkIn;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     @Column(name = "check_out")
-    private LocalDate checkOut;
+    private String checkOut;
 
     private Integer adulti;
     private Integer bambini;

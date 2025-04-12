@@ -1,6 +1,7 @@
 package epicode.it.progetto_finale_corso_epicode.viaggi;
 
 import epicode.it.progetto_finale_corso_epicode.GeneralResponseWithMessage;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class ViaggioController {
 
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.OK)
-    public GeneralResponseWithMessage<Viaggio> save(@RequestBody @Validated ViaggioRequest body) {
+    public GeneralResponseWithMessage<Viaggio> save(@RequestBody @Validated ViaggioRequest body) throws MessagingException {
 
         return viaggioService.save(body);
     }

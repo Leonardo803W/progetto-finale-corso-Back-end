@@ -31,6 +31,8 @@ public class AppUser implements UserDetails {
     @ToString.Exclude
     private String password;
 
+    private String avatar;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;

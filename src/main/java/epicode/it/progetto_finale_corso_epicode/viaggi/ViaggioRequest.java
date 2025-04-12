@@ -22,17 +22,14 @@ public class ViaggioRequest {
     private Integer  adulti;
     private Integer  bambini;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate checkIn;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate checkOut;
 
-    @NotBlank
+
     private String titolo;
 
-    @NotBlank
     private String descrizione;
 
-    @NotNull
+
     private Double prezzo;
 }

@@ -13,25 +13,18 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendEmail(String to, String subject) throws MessagingException {
-
-        sendEmail(to, subject, "Mail di spam");
-    }
-
-    public void sendEmail(String to, String subject, String body) throws  MessagingException {
-
-        if (body == null)
-        {
-            body = "mail di default";
-        }
+    public void sendEmail(String to, String subject, String body) throws MessagingException {
 
         MimeMessage message = mailSender.createMimeMessage();
-
         MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        //SimpleMailMessage message = new SimpleMailMessage();
 
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(body, true);
+        helper.setFrom("your-email@gmail.com");
+
         mailSender.send(message);
         System.out.println("Email inviata con successo a " + to);
     }

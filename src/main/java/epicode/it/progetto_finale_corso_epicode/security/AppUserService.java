@@ -3,6 +3,7 @@ package epicode.it.progetto_finale_corso_epicode.security;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,6 +36,7 @@ public class AppUserService {
 
             throw new EntityExistsException("Username già in uso");
         }
+
 
         if (appUserRepository.existsByEmail(email)) {
 
@@ -82,5 +84,31 @@ public class AppUserService {
 
 
         return appUser;
+    }
+
+    public AppUser updateUser(String username, UserUpdateRequest userUpdateRequest) {
+
+        AppUser appUser = loadUserByUsername(username);
+        if (userUpdateRequest.getEmail() != null) {
+            appUser.setEmail(userUpdateRequest.getEmail());
+        }
+        if (userUpdateRequest.getPassword() != null) {
+            appUser.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        }
+        // Aggiungi ulteriori campi da aggiornare se necessario
+        return appUserRepository.save(appUser);
+    }
+
+    public AppUser updateAdmin(String username, AdminUpdateRequest adminUpdateRequest) {
+
+        AppUser appUser = loadUserByUsername(username);
+        if (adminUpdateRequest.getEmail() != null) {
+            appUser.setEmail(adminUpdateRequest.getEmail());
+        }
+        if (adminUpdateRequest.getPassword() != null) {
+            appUser.setPassword(passwordEncoder.encode(adminUpdateRequest.getPassword()));
+        }
+        // Aggiungi ulteriori campi da aggiornare se necessario
+        return appUserRepository.save(appUser);
     }
 }
