@@ -18,11 +18,12 @@ public class ExceptionGlobalsHandler {
 
         return new ErrorsPayload("Errore di validazione o di input: " + e.getMessage(), LocalDateTime.now());
     }
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorsPayload handleNotFound(NotFoundException e) {
 
-        return new ErrorsPayload("Errore elemento non trovato: " + e.getMessage(), LocalDateTime.now());
+        return new ErrorsPayload("Errore dati non trovati: " + e.getMessage(), LocalDateTime.now());
     }
 
     @ExceptionHandler(Exception.class)

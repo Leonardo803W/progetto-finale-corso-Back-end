@@ -5,19 +5,19 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class UserUpdateRequest {
+public class UpdateRequest {
 
-    @NotBlank
+    @NotBlank(message = "Username is required")
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "Email is required")
     @Email
     private String email;
 
-    @NotBlank
-    private String password;
-
-    @NotBlank
+    @NotBlank(message = "Avatar is required")
     private String avatar;
+
+    @NotBlank(message = "Password is required")
+    private String password;
 
 }

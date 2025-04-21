@@ -1,17 +1,17 @@
 package epicode.it.progetto_finale_corso_epicode.security;
 
 import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,13 +30,13 @@ public class AppUserService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
+    //metodo per la registrazione dell'utente
     public AppUser registerUser(String username, String password, Set<Role> roles, String email) {
 
         if (appUserRepository.existsByUsername(username)) {
 
             throw new EntityExistsException("Username già in uso");
         }
-
 
         if (appUserRepository.existsByEmail(email)) {
 
@@ -56,11 +56,7 @@ public class AppUserService {
         return appUserRepository.save(appUser);
     }
 
-    public Optional<AppUser> findByUsername(String username) {
-
-        return appUserRepository.findByUsername(username);
-    }
-
+    //metodo  per l'autenticazione dell'utente
     public String authenticateUser(String username, String password)  {
 
         try {
@@ -77,38 +73,65 @@ public class AppUserService {
         }
     }
 
+    //metodo per la ricerca dell'utente
+    public AppUser findUserBy(String value, String searchType) {
 
-    public AppUser loadUserByUsername(String username)  {
-        AppUser appUser = appUserRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Utente non trovato con username: " + username));
+        switch (searchType.toLowerCase()) {
 
+            case "email":
+                return appUserRepository.findByEmail(value);
 
-        return appUser;
+            case "username":
+                return appUserRepository.findByUsername(value);
+
+            default:
+                throw new IllegalArgumentException("Tipo di ricerca non supportato: " + searchType);
+        }
     }
 
-    public AppUser updateUser(String username, UserUpdateRequest userUpdateRequest) {
+    //metodo per l'aggiornamento dell'utente
+    public AppUser updateUser(String identifier, UpdateRequest userUpdateRequest) {
 
-        AppUser appUser = loadUserByUsername(username);
+        AppUser appUser;
+
+        if (Objects.equals(identifier, userUpdateRequest.getEmail())) {
+
+            appUser = findUserBy(identifier, "email");
+
+        } else {
+
+            throw new UsernameNotFoundException("Utente non trovato con l'identificatore: " + identifier);
+        }
+
+        if (Objects.equals(identifier, userUpdateRequest.getUsername())) {
+
+            appUser = findUserBy(identifier, "username");
+
+        } else {
+
+            throw new UsernameNotFoundException("Utente non trovato con l'identificatore: " + identifier);
+        }
+
         if (userUpdateRequest.getEmail() != null) {
+
             appUser.setEmail(userUpdateRequest.getEmail());
         }
+
         if (userUpdateRequest.getPassword() != null) {
+
             appUser.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
         }
-        // Aggiungi ulteriori campi da aggiornare se necessario
-        return appUserRepository.save(appUser);
-    }
 
-    public AppUser updateAdmin(String username, AdminUpdateRequest adminUpdateRequest) {
+        if (userUpdateRequest.getUsername() != null) {
 
-        AppUser appUser = loadUserByUsername(username);
-        if (adminUpdateRequest.getEmail() != null) {
-            appUser.setEmail(adminUpdateRequest.getEmail());
+            appUser.setUsername(userUpdateRequest.getUsername());
         }
-        if (adminUpdateRequest.getPassword() != null) {
-            appUser.setPassword(passwordEncoder.encode(adminUpdateRequest.getPassword()));
+
+        if (userUpdateRequest.getAvatar() != null) {
+
+            appUser.setAvatar(userUpdateRequest.getAvatar());
         }
-        // Aggiungi ulteriori campi da aggiornare se necessario
+
         return appUserRepository.save(appUser);
     }
 }

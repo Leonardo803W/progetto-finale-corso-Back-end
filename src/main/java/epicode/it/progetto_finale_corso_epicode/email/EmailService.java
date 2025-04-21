@@ -13,6 +13,11 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    public void sendEmail(String to, String subject) throws MessagingException {
+
+        sendEmail(to, subject, "Mail di spam");
+    }
+
     public void sendEmail(String to, String subject, String body) throws MessagingException {
 
         MimeMessage message = mailSender.createMimeMessage();

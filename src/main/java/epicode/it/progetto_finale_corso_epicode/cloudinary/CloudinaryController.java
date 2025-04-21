@@ -16,6 +16,7 @@ import java.util.Map;
 @RequestMapping("/api/images")
 @RequiredArgsConstructor
 public class CloudinaryController {
+
     private final Cloudinary cloudinary;
 
     @PostMapping(path="/uploadme", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -24,12 +25,17 @@ public class CloudinaryController {
         try {
 
             Map result = cloudinary.uploader().upload(file.getBytes(),  Cloudinary.asMap("folder", "FS0824", "public_id", file.getOriginalFilename()));
+            Map result1 = cloudinary.uploader().upload(file.getBytes(),  Cloudinary.asMap("public_id", file.getOriginalFilename()));
 
             String url = result.get("secure_url").toString();
+            String url1 = result.get("secure_url").toString();
+
+            System.out.println("Invio dell'immagine avvenuta con sucesso, con il seguente url:" + url);
+            System.out.println("Invio dell'immagine avvenuta con sucesso, con il seguente url:" + url1);
 
         } catch (IOException e) {
 
-            throw new RuntimeException(e);
+            throw new RuntimeException("Errore! :" + e.getMessage());
         }
 
     }

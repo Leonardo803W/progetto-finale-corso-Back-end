@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Data
 public class AppUser implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,10 +52,12 @@ public class AppUser implements UserDetails {
     }
 
     public AppUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+
         this(username, password, true, true, true, true, authorities);
     }
 
     public AppUser(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
+
         this.username = username;
         this.password = password;
         this.enabled = enabled;

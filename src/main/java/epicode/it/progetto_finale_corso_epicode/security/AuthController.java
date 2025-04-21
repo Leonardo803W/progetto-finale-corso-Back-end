@@ -3,8 +3,6 @@ package epicode.it.progetto_finale_corso_epicode.security;
 import epicode.it.progetto_finale_corso_epicode.email.EmailService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,24 +14,16 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class); // Creazione del logger
-
     private final AppUserService appUserService;
     private final EmailService emailService;
 
     //metodi per lo user
 
-    // Endpoint per ottenere i dettagli dell'utente
-    @GetMapping("/user-details/{username}")
-    public ResponseEntity<AppUser> getUserDetails(@PathVariable String username) {
 
-        Optional<AppUser> user = appUserService.findByUsername(username);
-        return user.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
+    //endpoint per la registrazione con ruolo user
     @PostMapping("/user-register")
-    public ResponseEntity<String> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public ResponseEntity<String> userRegister(@RequestBody RegisterRequest userRegisterRequest) {
+
         // Registrazione dell'utente
         appUserService.registerUser(
                 userRegisterRequest.getUsername(),
@@ -58,16 +48,40 @@ public class AuthController {
 
         return ResponseEntity.ok("Registrazione avvenuta con successo");
     }
+    // Endpoint per ottenere i dettagli dell'utente
+    @GetMapping("/user-details")
+    public ResponseEntity<AppUser> getUserDetails(@RequestParam String identifier, @RequestParam(required = false, defaultValue = "username") String type) {
 
+        String searchType = type.toLowerCase();
+
+        Optional<AppUser> user;
+
+        if ("email".equals(searchType)) {
+            user = Optional.ofNullable(appUserService.findUserBy(identifier, "email"));
+
+        } else if ("username".equals(searchType)) {
+
+            user = Optional.ofNullable(appUserService.findUserBy(identifier, "username"));
+        } else {
+
+            // Caso in cui il tipo di ricerca non è riconosciuto
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        return user.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    //endpoint per l'autenticazione
     @PostMapping("/user-login")
-    public ResponseEntity<AuthResponse> UserLogin(@RequestBody UserLoginRequest userLoginRequest) {
+    public ResponseEntity<AuthResponse> UserLogin(@RequestBody LoginRequest userLoginRequest) {
 
         String token = appUserService.authenticateUser(
                 userLoginRequest.getUsername(),
                 userLoginRequest.getPassword()
         );
 
-        Optional<AppUser> user = appUserService.findByUsername(userLoginRequest.getUsername());
+        AppUser user = appUserService.findUserBy(String.valueOf(userLoginRequest.getUsername()), "username");
 
         System.out.println("Login avvenuto con successo");
         return ResponseEntity.ok(new AuthResponse(token));
@@ -75,7 +89,7 @@ public class AuthController {
 
     // Endpoint per modificare i dettagli dell'utente
     @PutMapping("/user-update/{username}")
-    public ResponseEntity<String> updateUser(@PathVariable String username, @RequestBody UserUpdateRequest userUpdateRequest) {
+    public ResponseEntity<String> updateUser(@PathVariable String username, @RequestBody UpdateRequest userUpdateRequest) {
 
         AppUser updatedUser = appUserService.updateUser(username, userUpdateRequest);
 
@@ -96,21 +110,9 @@ public class AuthController {
         return ResponseEntity.ok("Utente aggiornato con successo: " + updatedUser.getUsername());
     }
 
-    // Endpoint per ottenere i dettagli dell'admin
-    @GetMapping("/admin-details/{username}")
-    public ResponseEntity<AppUser> getAdminDetails(@PathVariable String username) {
-
-        Optional<AppUser> admin = appUserService.findByUsername(username);
-        return admin.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
+    //endpoint per la registrazione con ruolo admin
     @PostMapping("/admin-register")
-    public ResponseEntity<String> adminRegister(@RequestBody AdminRegisterRequest adminRegisterRequest) {
-        // Controlla se il codice per admin sia corretto
-        if (!"leo".equals(adminRegisterRequest.getAdminCode())) {
-            return ResponseEntity.status(403).body(null);
-        }
+    public ResponseEntity<String> adminRegister(@RequestBody RegisterRequest adminRegisterRequest) {
 
         // Registrazione dell'admin
         appUserService.registerUser(
@@ -137,21 +139,26 @@ public class AuthController {
         return ResponseEntity.ok("Registrazione avvenuta con successo");
     }
 
+    // Endpoint per ottenere i dettagli dell'admin
+    @GetMapping("/admin-details/{username}")
+    public ResponseEntity<AppUser> getAdminDetails(@PathVariable String username) {
+
+        Optional<AppUser> admin = Optional.ofNullable(appUserService.findUserBy(username, "username"));
+
+        return admin.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    //endponit per l'autenticazione
     @PostMapping("/admin-login")
-    public ResponseEntity<AuthResponse> adminLogin(@RequestBody AdminLoginRequest adminLoginRequest) {
-
-        //controlla se il code per admin sia corretto
-        if (!"leo".equals(adminLoginRequest.getAdminCode())) {
-
-            return ResponseEntity.status(403).body(null);
-        }
+    public ResponseEntity<AuthResponse> adminLogin(@RequestBody LoginRequest adminLoginRequest) {
 
         String token = appUserService.authenticateUser(
                 adminLoginRequest.getUsername(),
                 adminLoginRequest.getPassword()
         );
 
-        Optional<AppUser> user = appUserService.findByUsername(adminLoginRequest.getUsername());
+        AppUser user = appUserService.findUserBy(String.valueOf(adminLoginRequest.getUsername()), "username");
 
         System.out.println("Admin login avvenuto con successo");
         return ResponseEntity.ok(new AuthResponse(token));
@@ -159,9 +166,9 @@ public class AuthController {
 
     // Endpoint per modificare i dettagli dell'admin
     @PutMapping("/admin-update/{username}")
-    public ResponseEntity<String> updateAdmin(@PathVariable String username, @RequestBody AdminUpdateRequest adminUpdateRequest) {
+    public ResponseEntity<String> updateAdmin(@PathVariable String username, @RequestBody UpdateRequest adminUpdateRequest) {
 
-        AppUser updatedAdmin = appUserService.updateAdmin(username, adminUpdateRequest);
+        AppUser updatedAdmin = appUserService.updateUser(username, adminUpdateRequest);
 
         try {
             String subject = "Vi sono stati dei cambiamenti nelle impostazioni del tuo profilo";
