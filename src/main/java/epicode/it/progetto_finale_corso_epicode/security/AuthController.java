@@ -17,11 +17,10 @@ public class AuthController {
     private final AppUserService appUserService;
     private final EmailService emailService;
 
-    //metodi per lo user
-
+    //metodi per lo user e per l'admin
 
     //endpoint per la registrazione con ruolo user
-    @PostMapping("/user-register")
+    @PostMapping("/user/register")
     public ResponseEntity<String> userRegister(@RequestBody RegisterRequest userRegisterRequest) {
 
         // Registrazione dell'utente
@@ -48,70 +47,9 @@ public class AuthController {
 
         return ResponseEntity.ok("Registrazione avvenuta con successo");
     }
-    // Endpoint per ottenere i dettagli dell'utente
-    @GetMapping("/user-details")
-    public ResponseEntity<AppUser> getUserDetails(@RequestParam String identifier, @RequestParam(required = false, defaultValue = "username") String type) {
-
-        String searchType = type.toLowerCase();
-
-        Optional<AppUser> user;
-
-        if ("email".equals(searchType)) {
-            user = Optional.ofNullable(appUserService.findUserBy(identifier, "email"));
-
-        } else if ("username".equals(searchType)) {
-
-            user = Optional.ofNullable(appUserService.findUserBy(identifier, "username"));
-        } else {
-
-            // Caso in cui il tipo di ricerca non è riconosciuto
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        return user.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    //endpoint per l'autenticazione
-    @PostMapping("/user-login")
-    public ResponseEntity<AuthResponse> UserLogin(@RequestBody LoginRequest userLoginRequest) {
-
-        String token = appUserService.authenticateUser(
-                userLoginRequest.getUsername(),
-                userLoginRequest.getPassword()
-        );
-
-        AppUser user = appUserService.findUserBy(String.valueOf(userLoginRequest.getUsername()), "username");
-
-        System.out.println("Login avvenuto con successo");
-        return ResponseEntity.ok(new AuthResponse(token));
-    }
-
-    // Endpoint per modificare i dettagli dell'utente
-    @PutMapping("/user-update/{username}")
-    public ResponseEntity<String> updateUser(@PathVariable String username, @RequestBody UpdateRequest userUpdateRequest) {
-
-        AppUser updatedUser = appUserService.updateUser(username, userUpdateRequest);
-
-        try {
-            String subject = "Vi sono stati dei cambiamenti nelle impostazioni del tuo profilo";
-            String body = "Admin " + userUpdateRequest.getUsername() + ",\n  le modifiche sono state effettuate.";
-
-            // Invio dell'email di conferma
-            emailService.sendEmail(userUpdateRequest.getEmail(), subject, body);
-            System.out.println("Email inviata con successo a " + userUpdateRequest.getEmail());
-
-        } catch (MessagingException e) {
-
-            System.out.println("Errore nell'invio dell'email di conferma per l'utente " + userUpdateRequest.getUsername() + ": " + e.getMessage());
-            return ResponseEntity.internalServerError().body("Errore nell'invio dell'email di conferma.");
-        }
-
-        return ResponseEntity.ok("Utente aggiornato con successo: " + updatedUser.getUsername());
-    }
 
     //endpoint per la registrazione con ruolo admin
-    @PostMapping("/admin-register")
+    @PostMapping("/admin/register")
     public ResponseEntity<String> adminRegister(@RequestBody RegisterRequest adminRegisterRequest) {
 
         // Registrazione dell'admin
@@ -139,52 +77,121 @@ public class AuthController {
         return ResponseEntity.ok("Registrazione avvenuta con successo");
     }
 
-    // Endpoint per ottenere i dettagli dell'admin
-    @GetMapping("/admin-details/{username}")
-    public ResponseEntity<AppUser> getAdminDetails(@PathVariable String username) {
-
-        Optional<AppUser> admin = Optional.ofNullable(appUserService.findUserBy(username, "username"));
-
-        return admin.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    //endponit per l'autenticazione
-    @PostMapping("/admin-login")
-    public ResponseEntity<AuthResponse> adminLogin(@RequestBody LoginRequest adminLoginRequest) {
+    //endpoint per l'autenticazione dello user o dell'admin
+    @PostMapping("/account/login")
+    public ResponseEntity<AuthResponse> UserLogin(@RequestBody LoginRequest userLoginRequest) {
 
         String token = appUserService.authenticateUser(
-                adminLoginRequest.getUsername(),
-                adminLoginRequest.getPassword()
+                userLoginRequest.getUsername(),
+                userLoginRequest.getPassword()
         );
 
-        AppUser user = appUserService.findUserBy(String.valueOf(adminLoginRequest.getUsername()), "username");
+        AppUser user = appUserService.findUserBy(String.valueOf(userLoginRequest.getUsername()), "username");
 
-        System.out.println("Admin login avvenuto con successo");
+        System.out.println("Login avvenuto con successo");
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
-    // Endpoint per modificare i dettagli dell'admin
-    @PutMapping("/admin-update/{username}")
-    public ResponseEntity<String> updateAdmin(@PathVariable String username, @RequestBody UpdateRequest adminUpdateRequest) {
+    // Endpoint per ottenere i dettagli dell'utente o dell'admin
+    @GetMapping("/account/details")
+    public ResponseEntity<AppUser> getUserDetails(@RequestParam String identifier, @RequestParam(required = false, defaultValue = "username") String type) {
 
-        AppUser updatedAdmin = appUserService.updateUser(username, adminUpdateRequest);
+        String searchType = type.toLowerCase();
+
+        Optional<AppUser> user;
+
+        if ("email".equals(searchType)) {
+            user = Optional.ofNullable(appUserService.findUserBy(identifier, "email"));
+
+        } else if ("username".equals(searchType)) {
+
+            user = Optional.ofNullable(appUserService.findUserBy(identifier, "username"));
+        } else {
+
+            // Caso in cui il tipo di ricerca non è riconosciuto
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Endpoint per modificare i dettagli dell'utente o dell'admin
+    @PutMapping("/account/update")
+    public ResponseEntity<String> updateUser(@RequestParam String identifier, @RequestParam(required = false, defaultValue = "username") String type, @RequestBody UpdateRequest UpdateRequest) {
+
+        String searchType = type.toLowerCase();
+
+        Optional<AppUser> updateUser;
+
+        if ("email".equals(searchType)) {
+            updateUser = Optional.ofNullable(appUserService.findUserBy(identifier, "email"));
+
+        } else if ("username".equals(searchType)) {
+
+            updateUser = Optional.ofNullable(appUserService.findUserBy(identifier, "username"));
+        } else {
+
+            // Caso in cui il tipo di ricerca non è riconosciuto
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        appUserService.updateUser(searchType, UpdateRequest);
 
         try {
             String subject = "Vi sono stati dei cambiamenti nelle impostazioni del tuo profilo";
-            String body = "Ciao " + adminUpdateRequest.getUsername() + ",\n  ti avvisiamo che le modifiche sono state effettuate.";
+            String body = "Admin " + UpdateRequest.getUsername() + ",\n  le modifiche sono state effettuate.";
 
             // Invio dell'email di conferma
-            emailService.sendEmail(adminUpdateRequest.getEmail(), subject, body);
-            System.out.println("Email inviata con successo a " + adminUpdateRequest.getEmail());
+            emailService.sendEmail(UpdateRequest.getEmail(), subject, body);
+            System.out.println("Email inviata con successo a " + UpdateRequest.getEmail());
 
         } catch (MessagingException e) {
 
-            System.out.println("Errore nell'invio dell'email di conferma per l'utente " + adminUpdateRequest.getUsername() + ": " + e.getMessage());
+            System.out.println("Errore nell'invio dell'email di conferma per l'utente " + UpdateRequest.getUsername() + ": " + e.getMessage());
             return ResponseEntity.internalServerError().body("Errore nell'invio dell'email di conferma.");
         }
 
-        return ResponseEntity.ok("Admin aggiornato con successo: " + updatedAdmin.getUsername());
+        return ResponseEntity.ok("Utente aggiornato con successo: " + updateUser.get().getUsername());
     }
 
+    /*
+    @DeleteMapping("/account/delete")
+    public ResponseEntity<String> deleteUser(@RequestParam String identifier, @RequestParam(required = false, defaultValue = "username") String type, RegisterRequest RegisterRequest) {
+
+        String searchType = type.toLowerCase();
+
+        Optional<AppUser> user;
+
+        if ("email".equals(searchType)) {
+            user = Optional.ofNullable(appUserService.findUserBy(identifier, "email"));
+
+        } else if ("username".equals(searchType)) {
+
+            user = Optional.ofNullable(appUserService.findUserBy(identifier, "username"));
+        } else {
+
+            // Caso in cui il tipo di ricerca non è riconosciuto
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        appUserService.deleteUser(identifier);
+
+        try {
+            String subject = "Cancellazione al sito 'Viaggi di Passione'";
+            String body = "Ciao " + RegisterRequest.getUsername() + ",\n  La cancellazione dei tuoi dati e avvenuta con successo.";
+
+            // Invio dell'email di conferma
+            emailService.sendEmail(RegisterRequest.getEmail(), subject, body);
+            System.out.println("Email inviata con successo a " + RegisterRequest.getEmail());
+
+        } catch (MessagingException e) {
+
+            System.out.println("Errore nell'invio dell'email di conferma per l'utente " + RegisterRequest.getUsername() + ": " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Errore nell'invio dell'email di conferma.");
+        }
+
+        return ResponseEntity.ok("Utente eliminato con successo.");
+    }
+
+     */
 }

@@ -13,5 +13,6 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     boolean existsByEmail(String email);
     boolean existsByPassword(String password);
 
+    //AppUser deleteByidentifier(String identifier);
 }
 

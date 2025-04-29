@@ -1,5 +1,6 @@
 package epicode.it.progetto_finale_corso_epicode.security;
 
+import epicode.it.progetto_finale_corso_epicode.GeneralResponseWithMessage;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -56,7 +57,7 @@ public class AppUserService {
         return appUserRepository.save(appUser);
     }
 
-    //metodo  per l'autenticazione dell'utente
+    //metodo per l'autenticazione dell'utente
     public String authenticateUser(String username, String password)  {
 
         try {
@@ -88,6 +89,23 @@ public class AppUserService {
                 throw new IllegalArgumentException("Tipo di ricerca non supportato: " + searchType);
         }
     }
+
+    /*
+    public AppUser deleteUser(String identifier) {
+
+        if (!appUserRepository.existsByEmail(identifier)) {
+
+            throw new UsernameNotFoundException("Utente non trovato con l'identificatore: " + identifier);
+        }
+
+        appUserRepository.deleteByidentifier(identifier);
+
+        System.out.println("Utente cancellato con: " + identifier);
+        return null;
+    }
+
+     */
+
 
     //metodo per l'aggiornamento dell'utente
     public AppUser updateUser(String identifier, UpdateRequest userUpdateRequest) {

@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import java.util.Arrays;
 
@@ -33,38 +34,48 @@ public class SecurityConfig {
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
+    //configurazione CORS per swagger e per front-end
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // Disabilita CSRF
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configura CORS
-                .authorizeHttpRequests(authorize -> authorize
-                        // Parte per Swagger (permessi liberi)
-                        //.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        //.requestMatchers("/api/**").permitAll()
-                        .anyRequest().permitAll()
+
+        http.csrf(csrf -> csrf.disable())   // Disabilita CSRF
+             .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Configura CORS
+                .authorizeHttpRequests(authorize -> authorize    // Configura le regole di autorizzazione
+
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()    // Accesso libero a Swagger
+
+                        // Regole di accesso alle API
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/viaggi/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/viaggi/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/viaggi/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/viaggi/**").hasRole("ADMIN")
+
+                        // Permette l'accesso a tutte le altre richieste (opzionale)
+                        //.anyRequest().permitAll()
                 )
+
+                // Gestione stateless
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
-        // Aggiungi il filtro JWT
+        // filtro JWT
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // Configurazione CORS
+    // Configurazione CORS per front-and
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000" )); // esempio di aggiunta dominio di frontend: "https://tuo-dominio.com"
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L); // 1 ora
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
