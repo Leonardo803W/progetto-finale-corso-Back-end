@@ -90,21 +90,30 @@ public class AppUserService {
         }
     }
 
-    /*
-    public AppUser deleteUser(String identifier) {
+    public AppUser deleteUser(String identifier, String searchType) {
 
-        if (!appUserRepository.existsByEmail(identifier)) {
+        Optional<AppUser> userOptional;
 
-            throw new UsernameNotFoundException("Utente non trovato con l'identificatore: " + identifier);
+        if ("email".equalsIgnoreCase(searchType)) {
+
+            userOptional = Optional.ofNullable(appUserRepository.findByEmail(identifier));
+
+        } else if ("username".equalsIgnoreCase(searchType)) {
+
+            userOptional = Optional.ofNullable(appUserRepository.findByUsername(identifier));
+
+        } else {
+
+            throw new IllegalArgumentException("Tipo di ricerca non supportato: " + searchType);
         }
 
-        appUserRepository.deleteByidentifier(identifier);
+        AppUser user = userOptional.orElseThrow(() -> new UsernameNotFoundException("Utente non trovato con l'identificatore: " + identifier));
 
-        System.out.println("Utente cancellato con: " + identifier);
-        return null;
+        // Elimina l'utente
+        appUserRepository.delete(user);
+
+        return user;
     }
-
-     */
 
 
     //metodo per l'aggiornamento dell'utente

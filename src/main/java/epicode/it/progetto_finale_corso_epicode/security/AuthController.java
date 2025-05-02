@@ -3,6 +3,7 @@ package epicode.it.progetto_finale_corso_epicode.security;
 import epicode.it.progetto_finale_corso_epicode.email.EmailService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -154,44 +155,60 @@ public class AuthController {
         return ResponseEntity.ok("Utente aggiornato con successo: " + updateUser.get().getUsername());
     }
 
-    /*
     @DeleteMapping("/account/delete")
-    public ResponseEntity<String> deleteUser(@RequestParam String identifier, @RequestParam(required = false, defaultValue = "username") String type, RegisterRequest RegisterRequest) {
+    public ResponseEntity<String> deleteUserOrEmail(@RequestParam String identifier, @RequestParam(required = false, defaultValue = "username") String type) {
 
         String searchType = type.toLowerCase();
-
         Optional<AppUser> user;
 
         if ("email".equals(searchType)) {
+
             user = Optional.ofNullable(appUserService.findUserBy(identifier, "email"));
 
         } else if ("username".equals(searchType)) {
 
             user = Optional.ofNullable(appUserService.findUserBy(identifier, "username"));
+
         } else {
 
-            // Caso in cui il tipo di ricerca non è riconosciuto
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("Tipo di ricerca non supportato");
         }
 
-        appUserService.deleteUser(identifier);
+        if (!user.isPresent()) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utente non trovato");
+        }
+
+        //utilizzo variabili di tipo string momentanea per avere i dettagli dell'utente prima di eliminarlo per poter mandare l'email di conferma
+        AppUser appUser = user.get();
+        String name = appUser.getUsername();
+        String email = appUser.getEmail();
 
         try {
-            String subject = "Cancellazione al sito 'Viaggi di Passione'";
-            String body = "Ciao " + RegisterRequest.getUsername() + ",\n  La cancellazione dei tuoi dati e avvenuta con successo.";
+            // Chiamata al service passando anche searchType
+            appUserService.deleteUser(identifier, searchType);
 
-            // Invio dell'email di conferma
-            emailService.sendEmail(RegisterRequest.getEmail(), subject, body);
-            System.out.println("Email inviata con successo a " + RegisterRequest.getEmail());
+        } catch (Exception e) {
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante la cancellazione");
+        }
+
+        // Invio email di conferma
+        try {
+
+            String subject = "Cancellazione al sito 'Viaggi di Passione'";
+            String body = "Ciao " + name + ",\n  La cancellazione dei tuoi dati è avvenuta con successo.";
+            emailService.sendEmail(email, subject, body);
+            
+            System.out.println("Email inviata con successo a " + email);
 
         } catch (MessagingException e) {
 
-            System.out.println("Errore nell'invio dell'email di conferma per l'utente " + RegisterRequest.getUsername() + ": " + e.getMessage());
-            return ResponseEntity.internalServerError().body("Errore nell'invio dell'email di conferma.");
+            System.out.println("Errore nell'invio dell'email di conferma per l'utente " + name + ": " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore nell'invio dell'email di conferma.");
         }
 
         return ResponseEntity.ok("Utente eliminato con successo.");
     }
 
-     */
 }

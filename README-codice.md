@@ -70,9 +70,15 @@ Scopo: Questa dipendenza fornisce strumenti e utility per testare la sicurezza n
 - base per fetch per cancellare un viaggio: http://localhost:8080/api/viaggi/deleteById/{id}
 - base per fetch per trovare tutti i viaggi: http://localhost:8080/api/viaggi/fetchall
 
+- tutti i metodi delle varie fetch hanno un controllo di accesso per il loro utilizzo, 
+- i metodi di get possono utilizzarle sia admin e user ma per tutte le altre possono utilizzarle solo gli admin.
+
 - base per le fetch dei dati user: http://localhost:8080/api/auth
-- base per fetch per registrare: http://localhost:8080/api/auth/register
+- base per fetch per registrare: http://localhost:8080/api/auth/user/register (come ruolo user)
+- - base per fetch per registrare: http://localhost:8080/api/auth/admin/register (come ruolo admin)
 - base per fetch per log in: http://localhost:8080/api/auth/login
+
+- la fetch sia per il registrarsi sia per il cancellare un utente entrambe manderrano una email di conferma alla email dell'utente
 
 - base per le fetch dei dati cloudinary: http://localhost:8080/api/images
 - base per fetch mandare immagini al cloud: http://localhost:8080/api/images/uploadme
@@ -98,3 +104,4 @@ Scopo: Questa dipendenza fornisce strumenti e utility per testare la sicurezza n
 "message": "Viaggio trovato con successo."
 }
 
+-----------------------------------------------------------------------------------
