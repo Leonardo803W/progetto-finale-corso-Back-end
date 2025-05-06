@@ -14,22 +14,17 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ViaggioRequest {
 
+    private String descrizione;
+    private String titolo;
     private String stato;
-    private String regione;
     private String provincia;
     private String citta;
     private String image;
-    private Integer  adulti;
-    private Integer  bambini;
-
+    private Integer adulti;
+    private Integer bambini;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate checkIn;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate checkOut;
-
-
-    private String titolo;
-
-    private String descrizione;
-
-
     private Double prezzo;
 }

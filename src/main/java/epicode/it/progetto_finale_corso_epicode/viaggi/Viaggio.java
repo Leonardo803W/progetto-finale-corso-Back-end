@@ -19,21 +19,17 @@ public class Viaggio {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    private String descrizione;
+    private String titolo;
     private String stato;
-    private String regione;
     private String provincia;
     private String citta;
-    private String titolo;
-    private String descrizione;
     private String image;
-
-    @Column(name = "check_in")
-    private String checkIn;
-
-    @Column(name = "check_out")
-    private String checkOut;
-
     private Integer adulti;
     private Integer bambini;
-    private double prezzo;
+    @Column(name = "check_in")
+    private LocalDate checkIn;
+    @Column(name = "check_out")
+    private LocalDate checkOut;
+    private Double prezzo;
 }

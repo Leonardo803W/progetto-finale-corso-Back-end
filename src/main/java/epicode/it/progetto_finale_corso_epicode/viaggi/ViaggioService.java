@@ -24,10 +24,11 @@ public class ViaggioService {
     public GeneralResponseWithMessage<Viaggio> save(ViaggioRequest viaggioRequest) {
 
         Viaggio viaggio = new Viaggio();
-        viaggioRepository.save(viaggio);
         BeanUtils.copyProperties(viaggioRequest, viaggio);
 
-        return new GeneralResponseWithMessage<>(viaggio, "Viaggio salvato con successo.");
+        Viaggio savedViaggio = viaggioRepository.save(viaggio);
+
+        return new GeneralResponseWithMessage<>(savedViaggio, "Viaggio salvato con successo.");
     }
 
     // Metodo per modificare un viaggio

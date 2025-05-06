@@ -93,6 +93,8 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
+
+
     // Endpoint per ottenere i dettagli dell'utente o dell'admin
     @GetMapping("/account/details")
     public ResponseEntity<AppUser> getUserDetails(@RequestParam String identifier, @RequestParam(required = false, defaultValue = "username") String type) {
@@ -199,7 +201,7 @@ public class AuthController {
             String subject = "Cancellazione al sito 'Viaggi di Passione'";
             String body = "Ciao " + name + ",\n  La cancellazione dei tuoi dati è avvenuta con successo.";
             emailService.sendEmail(email, subject, body);
-            
+
             System.out.println("Email inviata con successo a " + email);
 
         } catch (MessagingException e) {
