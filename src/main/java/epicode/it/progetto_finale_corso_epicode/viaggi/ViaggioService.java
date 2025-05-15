@@ -21,7 +21,7 @@ public class ViaggioService {
     private final ViaggioRepository viaggioRepository;
 
     // Metodo per inserire un viaggio
-    public GeneralResponseWithMessage<Viaggio> save(ViaggioRequest viaggioRequest) {
+    public GeneralResponseWithMessage<Viaggio> save(ViaggioRequestSave viaggioRequest) {
 
         Viaggio viaggio = new Viaggio();
         BeanUtils.copyProperties(viaggioRequest, viaggio);
@@ -32,7 +32,7 @@ public class ViaggioService {
     }
 
     // Metodo per modificare un viaggio
-    public GeneralResponseWithMessage<Viaggio> modifyById(Long id, ViaggioRequest viaggioRequest) {
+    public GeneralResponseWithMessage<Viaggio> modifyById(Long id, ViaggioRequestModify viaggioRequest) {
 
         Viaggio viaggio = viaggioRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Viaggio non trovato con ID: " + id));
 

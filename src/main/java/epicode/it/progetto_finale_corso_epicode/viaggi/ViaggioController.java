@@ -32,8 +32,10 @@ public class ViaggioController {
 
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.OK)
-    public GeneralResponseWithMessage<Viaggio> save(@RequestBody @Validated ViaggioRequest body) {
+    public GeneralResponseWithMessage<Viaggio> save(@RequestBody @Validated ViaggioRequestSave body) {
 
+        /*
+        
         // Invio dell'email di conferma del salvataggio di un nuovo viaggio direttamente all'admin
         try {
 
@@ -45,6 +47,8 @@ public class ViaggioController {
 
             System.out.println("Errore nell'invio dell'email di conferma: " + e.getMessage());
         }
+
+         */
 
         return viaggioService.save(body);
     }
@@ -58,7 +62,7 @@ public class ViaggioController {
 
     @PutMapping("/modifyById/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public GeneralResponseWithMessage<Viaggio> modifyById(@PathVariable Long id, @RequestBody ViaggioRequest request) {
+    public GeneralResponseWithMessage<Viaggio> modifyById(@PathVariable Long id, @RequestBody ViaggioRequestModify request) {
 
         return viaggioService.modifyById(id, request);
     }
